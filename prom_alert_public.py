@@ -1,6 +1,6 @@
 # ═══════════════════════════════════════════════════════════════
 # Solar Prominence Alert System
-# Version 1.3 — May 2026
+# Version 1.4 — May 2026
 #
 # Written by Mark Johnston
 # Astronomical Society of the Pacific
@@ -39,13 +39,25 @@ ALERT_COOLDOWN_SECS   = 14400  # 4 hours before re-alerting stable event
 CLUSTER_CHANGE_PCT    = 0.40   # re-alert if cluster changes by 40%
 CHECK_INTERVAL_SECS   = 600    # check every 10 minutes
 
-SDO_URL  = "https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0304.jpg"
-IMG_FILE = "sdo_latest.jpg"
+SDO_URL    = "https://sdo.gsfc.nasa.gov/assets/img/latest/latest_1024_0304.jpg"
+IMG_FILE   = "sdo_latest.jpg"
+STATE_FILE = "prom_alert_state.txt"
 # ──────────────────────────────────────────────────────────────
 
-# Alert state tracking
-last_alert_time     = 0
-last_cluster_size   = 0
+def load_state():
+    try:
+        with open(STATE_FILE, "r") as f:
+            parts = f.read().strip().split(",")
+            return float(parts[0]), int(parts[1])
+    except:
+        return 0, 0
+
+def save_state(last_time, last_cluster):
+    with open(STATE_FILE, "w") as f:
+        f.write(f"{last_time},{last_cluster}")
+
+# Alert state tracking — saved to disk so sleep/restart doesn't reset cooldown
+last_alert_time, last_cluster_size = load_state()
 
 def download_image():
     urllib.request.urlretrieve(SDO_URL, IMG_FILE)
@@ -168,6 +180,7 @@ def run_once():
                 send_email(solar_radius, alert_radius, count, largest_cluster, reason, debug_path)
                 last_alert_time = now
                 last_cluster_size = largest_cluster
+                save_state(last_alert_time, last_cluster_size)
             except Exception as e:
                 print(f"  Email failed: {e}")
         else:
@@ -176,6 +189,7 @@ def run_once():
                   f"cluster change: {abs(largest_cluster - last_cluster_size) / max(last_cluster_size, 1) * 100:.0f}%")
     else:
         last_cluster_size = 0
+        save_state(last_alert_time, last_cluster_size)
         print("  No alert.")
 
 # ── MAIN LOOP ──────────────────────────────────────────────────
