@@ -171,7 +171,7 @@ The diagnostic image uses the following color key:
 
 ---
 
-## Requirements and Setup
+## Requirements and Setup for Mac OS (for Windows, see below)
 
 - A Mac computer
 - Python 3.10 or later
@@ -203,3 +203,102 @@ This script may be freely shared, used, and adapted for non-commercial purposes 
 ---
 
 *A companion tool to the Solar Observing Handbook*
+
+## Windows Installation
+
+The Solar Prominence Alert System can run on Windows using Python 3.10 or later.
+
+### Requirements
+
+* Windows 10 or Windows 11
+* Python 3.10 or later
+* Gmail account with App Password enabled
+* Internet connection
+
+### Installation
+
+Create a folder for the project:
+
+```text
+C:\SolarPromAlert
+```
+
+Download:
+
+```text
+prom_alert_windows.py
+requirements.txt
+```
+
+Open PowerShell and navigate to the folder:
+
+```powershell
+cd C:\SolarPromAlert
+```
+
+Create a Python virtual environment:
+
+```powershell
+py -m venv promalert-env
+```
+
+Activate the environment:
+
+```powershell
+.\promalert-env\Scripts\Activate.ps1
+```
+
+Install required libraries:
+
+```powershell
+pip install -r requirements.txt
+```
+
+### Configuration
+
+Edit:
+
+```text
+prom_alert_windows.py
+```
+
+and enter your information:
+
+```python
+EMAIL_FROM = "YOUR_GMAIL_ADDRESS_HERE"
+EMAIL_TO = "ALERT_RECIPIENT_EMAIL_HERE"
+GMAIL_APP_PW = "PASTE_YOUR_GMAIL_APP_PASSWORD_HERE"
+```
+
+Do not use your normal Gmail password. Use a Gmail App Password.
+
+### Test Run
+
+Run a single detection cycle:
+
+```powershell
+py prom_alert_windows.py --once
+```
+
+### Test Email
+
+Send a test email:
+
+```powershell
+py prom_alert_windows.py --test-email
+```
+
+### Continuous Monitoring
+
+Run continuously with checks every 10 minutes:
+
+```powershell
+py prom_alert_windows.py
+```
+
+Stop the program with:
+
+```text
+Ctrl+C
+```
+
